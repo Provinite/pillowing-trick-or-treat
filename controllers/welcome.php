@@ -33,6 +33,7 @@ class Welcome extends CI_Controller {
 
     public function whoami() {
     }
+
 }
 
 /* End of file welcome.php */

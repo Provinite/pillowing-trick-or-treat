@@ -16,6 +16,7 @@ class DeviantartAPI {
 
     //Configuration members
     private $apiBaseUrl;
+    private $apiAuthBaseUrl;
     private $apiClientSecret;
     private $apiClientId;
     private $apiScope;
@@ -41,6 +42,7 @@ class DeviantartAPI {
         $this->retryDelay = $data['retry_delay'];
         $this->tokenSource = $data['token_source'];
         $this->returnUri = $data['return_uri'];
+        $this->apiAuthBaseUrl = $data['api_auth_base'];
 
         $this->CI =& get_instance();
 
@@ -122,12 +124,13 @@ class DeviantartAPI {
      * @param bool $sendToken
      * @param bool $sendClientId
      * @param bool $sendClientSecret
+     * @param bool $isAuth
      * @return array 'response_code' => the HTTP response code, 'result' => the deserialized JSON result
      * @throws NoAuthCodeException
      * @throws DeviantartConnectionException
      * @throws AuthGenericException
      */
-    private function makeCall($endpoint, $method, $payload = array(), $validateToken = true, $sendToken = true, $sendClientId = true, $sendClientSecret = true) {
+    private function makeCall($endpoint, $method, $payload = array(), $validateToken = true, $sendToken = true, $sendClientId = true, $sendClientSecret = true, $isAuth = false) {
         if ($validateToken) {  //make a secure call, we'll need an auth token
             if (!$this->hasToken()) { //no token
                 if (!$this->hasRefreshToken()) { //no refresh token
@@ -174,34 +177,42 @@ class DeviantartAPI {
             $payload['client_secret'] = $this->apiClientSecret;
         }
 
-        $url = $this->apiBaseUrl . $endpoint;
-
-        if ($method == "GET") {
-            if (count($payload) > 0) {
-                $url = $url . '?';
-                foreach ($payload as $key => $value) {
-                    $value = urlencode($value);
-                    $url = $url . $key . '=' . $value . '&';
-                }
-            }
+        $url = '';
+        if ($isAuth) {
+            $url = $this->apiAuthBaseUrl . $endpoint;
+        } else {
+            $url = $this->apiBaseUrl . $endpoint;
         }
 
-        if ($method == "POST") {
-            if (count($payload) > 0) {
-                foreach ($payload as $key => $value) {
-                    $payload[$key] = urlencode($value);
-                }
-            }
+        $querystring = '';
 
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        if (count($payload > 0)) {
+            foreach ($payload as $key => $value) {
+                $value = urlencode($value);
+                $querystring = $querystring . $key . '=' . $value . '&';
+            }
+            $querystring = rtrim($querystring, '&');
+            if ($method == "GET") {
+                $url = $url . '?' . $querystring;
+            }
+            if ($method == "POST") {
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $querystring);
+            }
         }
 
         curl_setopt($ch, CURLOPT_ENCODING, "gzip");
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //curl_setopt($ch, CURLOPT_VERBOSE, true);
+        //curl_setopt($ch, CURLOPT_STDERR, $verbose = fopen("php://temp", "rw+"));
         $result = curl_exec($ch);
         $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+         //echo "<pre>";
+        //print_r(curl_getinfo($ch));
+        //echo "Verbose information:\n", !rewind($verbose), stream_get_contents($verbose), "\n";
+
 
         //if we run into problems, go ahead and retry with a delay
         if ($responseCode == 500 || curl_errno($ch)) {
@@ -231,7 +242,7 @@ class DeviantartAPI {
         $payload['grant_type'] = 'refresh_token';
         $payload['refresh_token'] = $this->refreshToken;
 
-        $result = $this->makeCall("token", "POST", $payload, false, false);
+        $result = $this->makeCall("token", "POST", $payload, false, false, true, true, true);
         if (!$this->isError($result)) {
             $this->setAccessToken($result['result']->access_token);
             $this->setRefreshToken($result['result']->refresh_token);
@@ -246,21 +257,24 @@ class DeviantartAPI {
         $payload['code'] = $this->authCode;
         $payload['redirect_uri'] = $this->returnUri;
 
-        $result = $this->makeCall("token", "POST", $payload, false, false);
+        $result = $this->makeCall("token", "POST", $payload, false, false, true, true, true);
         if (!$this->isError($result)) {
             $this->setAccessToken($result['result']->access_token);
             $this->setRefreshToken($result['result']->refresh_token);
+        } else {
+            print_r($result);
+            throw new AuthGenericException("Authorization failed");
         }
     }
 
     //create an authorization url to send our user out to for (re)authorization
     public function authorizationUrl($state) {
-        return $this->$apiBaseUrl .
+        return $this->apiAuthBaseUrl .
             'authorize?response_type=code' .
-            '&scope=' . $this->$apiScope .
-            '&client_id=' . $this->$apiClientId .
+            '&scope=' . $this->apiScope .
+            '&client_id=' . $this->apiClientId .
             '&redirect_uri=' . $this->returnUri .
-            '&state=' & $state;
+            '&state=' . $state;
     }
 
     public function isError($result) {
