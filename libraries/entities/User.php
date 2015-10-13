@@ -2,7 +2,7 @@
 class User {
     private $username;
     private $authToken;
-    private $id;
+    private $uuid;
 
     public function setUsername($username) {
         $this->username = $username;
@@ -12,20 +12,20 @@ class User {
         return $this->username;
     }
 
+    public function getUuid() {
+        return $this->uuid;
+    }
+
+    public function setUuid($uuid) {
+        $this->uuid = $uuid;
+    }
+
     public function setAuthToken($authToken) {
         $this->authToken = $authToken;
     }
 
     public function getAuthToken() {
         return $this->authToken;
-    }
-
-    public function setId($id) {
-        $this->id = $id;
-    }
-
-    public function getId() {
-        return $this->id;
     }
 
     public function dump() {

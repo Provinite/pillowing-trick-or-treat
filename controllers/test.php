@@ -12,12 +12,22 @@ class Test extends CI_Controller {
         $code = $this->input->get('code');
         $this->deviantartapi->setAuthCode($code);
         $this->deviantartapi->requestToken();
-
+        $result = $this->deviantartapi->whoami();
+        $result = $result['result'];
         echo "<pre>";
-        print_r($this->session->all_userdata());
+        echo "\n";
+        echo "Logged in as: <img src=\"" . $result->usericon . "\" />" . $result->username;
+        echo "\n";
+        print_r($result);
     }
 
     public function apiview() {
+        echo "<pre>";
+        echo "Watching? ";
+        print_r($this->deviantartapi->userIsWatching("pillowing-pile"));
+    }
+
+    public function populateJunkData() {
 
     }
 

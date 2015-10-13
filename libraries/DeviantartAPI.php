@@ -94,26 +94,26 @@ class DeviantartAPI {
      * @return bool Whether or not an access token is available
      */
     private function hasToken() {
-        return $this->accessToken == null;
+        return $this->accessToken !== null;
     }
 
     /**
      * @return bool Whether or not a refresh token is available
      */
     private function hasRefreshToken() {
-        return $this->refreshToken == null;
+        return $this->refreshToken !== null;
     }
 
     /**
      * @return bool Whether or not an authorization code is available
      */
     private function hasAuthCode() {
-        return $this->authCode == null;
+        return $this->authCode !== null;
     }
 
     public function placebo() {
-        $result = $this->makeCall("placebo", "GET", array(), false, false);
-        return $this->isError($result);
+        $result = $this->makeCall("placebo", "GET", array(), false, true);
+        return (!$this->isError($result) && $result['result']->status == "success");
     }
 
     /**
@@ -196,23 +196,19 @@ class DeviantartAPI {
                 $url = $url . '?' . $querystring;
             }
             if ($method == "POST") {
-                curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $querystring);
             }
+        }
+
+        if ($method == "POST") {
+            curl_setopt($ch, CURLOPT_POST, true);
         }
 
         curl_setopt($ch, CURLOPT_ENCODING, "gzip");
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //curl_setopt($ch, CURLOPT_VERBOSE, true);
-        //curl_setopt($ch, CURLOPT_STDERR, $verbose = fopen("php://temp", "rw+"));
         $result = curl_exec($ch);
         $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-         //echo "<pre>";
-        //print_r(curl_getinfo($ch));
-        //echo "Verbose information:\n", !rewind($verbose), stream_get_contents($verbose), "\n";
-
 
         //if we run into problems, go ahead and retry with a delay
         if ($responseCode == 500 || curl_errno($ch)) {
@@ -279,6 +275,16 @@ class DeviantartAPI {
 
     public function isError($result) {
         return $result['response_code'] >= 400;
+    }
+
+    public function whoami() {
+        return $this->makeCall("user/whoami", "POST");
+    }
+
+    //check if a user is watching another
+    public function userIsWatching($username) {
+        $result = $this->makeCall("user/friends/watching/$username", "GET", array());
+        return $result['result']->watching;
     }
 
 }
