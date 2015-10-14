@@ -74,7 +74,7 @@ abstract class aDAO {
         $count = $this->ci->db
             ->select('id')
             ->from($this->table)
-            ->where($IdCol, $id)
+            ->where($idCol, $id)
             ->get()
             ->num_rows();
 
@@ -94,6 +94,16 @@ abstract class aDAO {
 
     abstract public function entityFromArray(Array $eArray);
     abstract public function arrayFromEntity(iEntity $entity);
-    abstract public function entityFromObject($eObject);
+
+    public final function entityFromObject($obj) {
+        $uArray = $this->arrayFromEntity(new $this->entityClass);
+        foreach ($uArray as $k => $v) {
+            if (property_exists($obj, $k)) {
+                $uArray[$k] = $obj->$k;
+            }
+        }
+        return $this->entityFromArray($uArray);
+    }
+
     abstract public function generateSchema();
 } 

@@ -39,20 +39,6 @@ class PrizeDAO extends aDAO {
         return $ret;
     }
 
-    /**
-     * @param $obj
-     * @return Prize
-     */
-    public function entityFromObject($obj) {
-        $pArray = $this->arrayFromEntity(new Prize());
-        foreach ($pArray as $k => $v) {
-            if (property_exists($obj, $k)) {
-                $pArray[$k] = $obj->$k;
-            }
-        }
-        return $this->entityFromArray($pArray);
-    }
-
     public function generateSchema() {
         $fields = array(
             'id' => array(

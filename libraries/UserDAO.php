@@ -39,19 +39,6 @@ class UserDAO extends aDAO {
         return $ret;
     }
 
-    /**
-     * @param $obj
-     * @return User
-     */
-    public function entityFromObject($obj) {
-        $uArray = $this->arrayFromEntity(new User());
-        foreach ($uArray as $k => $v) {
-            if (property_exists($obj, $k)) {
-                $uArray[$k] = $obj->$k;
-            }
-        }
-        return $this->userFromArray($uArray);
-    }
 
     public function generateSchema() {
         $fields = array(
