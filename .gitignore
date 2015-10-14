@@ -8,3 +8,4 @@ config/
 .htaccess
 _notes/
 error_log
+CI_phpStorm.php
