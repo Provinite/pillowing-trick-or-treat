@@ -1,97 +1,16 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class UserDAO {
-    private $table = "users";
-    private $ci;
+class UserDAO extends aDAO {
 
     public function __construct() {
-        $this->ci =& get_instance();
+        parent::__construct();
+        $this->entityClass = "User";
+        $this->table = "users";
     }
 
-    /**
-     * @param User $user
-     * @return User
-     */
-    public function save(User $user) {
-        $uuid = $user->getUuid();
-        $record = $this->ci->db
-            ->select("*")
-            ->from($this->table)
-            ->where("uuid", $uuid)
-            ->get();
+    public function arrayFromEntity(iEntity $user) {
+        if (false) { $user = new User(); } //ugly fix for intellisense
 
-        if ($record->num_rows() > 0) { //update rather than insert
-            $existingUser = $this->userFromObject($record->row());
-            $update = $this->patch($existingUser, $user);
-
-            $this->ci->db
-                ->where('uuid', $update->getUuid())
-                ->set($this->arrayFromUser($update))
-                ->update($this->table);
-            return $update;
-        } else { //inserting rather than updating
-            $this->ci->db
-                ->set($this->arrayFromUser($user))
-                ->insert($this->table);
-            return $user;
-        }
-    }
-
-    /**
-     * @param User $user
-     */
-    public function delete(User $user) {
-        if ($this->exists($user)) {
-            $this->ci->db
-                ->where('uuid', $user->getUuid())
-                ->delete($this->table);
-        }
-    }
-
-    /**
-     * @param $uuid
-     * @return bool|User
-     */
-    public function get($uuid) {
-        if ($uuid instanceof User) {
-            $uuid = $uuid->getUuid();
-        }
-        $result = $this->ci->db
-            ->select("*")
-            ->from($this->table)
-            ->where('uuid', $uuid)
-            ->get();
-
-        if ($result->num_rows() == 0) {
-            return false;
-        }
-
-        return $this->userFromObject($result->row());
-    }
-
-    /**
-     * @param $uuid
-     * @return bool
-     */
-    public function exists($uuid) {
-        if ($uuid instanceof User) {
-            $uuid = $uuid->getUuid();
-        }
-        $count = $this->ci->db
-            ->select('uuid')
-            ->from($this->table)
-            ->where('uuid', $uuid)
-            ->get()
-            ->num_rows();
-
-        return ($count > 0);
-    }
-
-    /**
-     * @param User $user
-     * @return array
-     */
-    public function arrayFromUser(User $user) {
         return array(
             "uuid"          => $user->getUuid(),
             "access_token"  => $user->getAccessToken(),
@@ -107,7 +26,7 @@ class UserDAO {
      * @param array $user
      * @return User
      */
-    public function userFromArray(Array $user) {
+    public function entityFromArray(Array $user) {
         $ret = new User();
         $ret->setUuid($user['uuid']);
         $ret->setAccessToken($user['access_token']);
@@ -124,31 +43,14 @@ class UserDAO {
      * @param $obj
      * @return User
      */
-    public function userFromObject($obj) {
-        $uArray = $this->arrayFromUser(new User());
+    public function entityFromObject($obj) {
+        $uArray = $this->arrayFromEntity(new User());
         foreach ($uArray as $k => $v) {
             if (property_exists($obj, $k)) {
                 $uArray[$k] = $obj->$k;
             }
         }
         return $this->userFromArray($uArray);
-    }
-
-    /**
-     * @param User $user
-     * @param User $patch
-     * @return User
-     */
-    public function patch(User $user, User $patch) {
-
-        $aPatch = $this->arrayFromUser($patch);
-        $aUser = $this->arrayFromUser($user);
-        $result = array();
-        foreach ($aUser as $key => $value) {
-            $result[$key] = ($aPatch[$key] !== null) ? $aPatch[$key] : $aUser[$key];
-        }
-
-        return $this->userFromArray($result);
     }
 
     public function generateSchema() {

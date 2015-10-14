@@ -1,5 +1,6 @@
-<?php
-class User {
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+class User implements iEntity {
+
     private $uuid = null;
     private $username = null;
     private $authCode = null;
@@ -7,6 +8,14 @@ class User {
     private $refreshToken = null;
     private $tokenIssued = null;
     private $ipAddress = null;
+
+    public function getIdField() {
+        return "uuid";
+    }
+
+    public function getId() {
+        return $this->getUuid();
+    }
 
     public function setAccessToken($accessToken)
     {
