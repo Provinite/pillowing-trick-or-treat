@@ -3,6 +3,7 @@ require_once("iEntity.php");
 require_once("aDAO.php");
 require_once("entities/Prize.php");
 require_once("entities/User.php");
+require_once("entities/WinEvent.php");
 class CustomLoader {
 
 }

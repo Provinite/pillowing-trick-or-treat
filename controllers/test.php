@@ -48,22 +48,8 @@ class Test extends CI_Controller {
     }
 
     public function dbTest() {
-        $u1 = $this->userdao->get("001");
-        echo "<pre>";
-        echo "u1\n";
-
-        print_r($u1);
-
-        $this->userdao->delete($u1);
-
-        $result = $this->userdao->get("001");
-        if ($result === false) {
-            echo "Not found: GET returned FALSE";
-        }
-        $result = $this->userdao->exists("001");
-        if ($result === false) {
-            echo "Not found: EXISTS returned FALSE";
-        }
+        $this->wineventdao->generateSchema();
+        $this->prizedao->generateSchema();
     }
 
 }
