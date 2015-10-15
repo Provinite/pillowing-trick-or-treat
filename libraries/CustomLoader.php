@@ -4,6 +4,7 @@ require_once("aDAO.php");
 require_once("entities/Prize.php");
 require_once("entities/User.php");
 require_once("entities/WinEvent.php");
+require_once("entities/TrickOrTreatEvent.php");
 class CustomLoader {
 
 }

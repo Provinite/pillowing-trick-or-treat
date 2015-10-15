@@ -48,8 +48,7 @@ class Test extends CI_Controller {
     }
 
     public function dbTest() {
-        $this->wineventdao->generateSchema();
-        $this->prizedao->generateSchema();
+
     }
 
 }
