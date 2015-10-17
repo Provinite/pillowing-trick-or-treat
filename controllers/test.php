@@ -31,6 +31,26 @@ class Test extends CI_Controller {
 
     }
 
+    public function patchTest() {
+        $u1 = new User();
+        $u2 = new User();
+
+        $u1->setUsername("Provinite");
+        $u1->setAccessToken("ATOKEN");
+        $u1->setAuthCode("ACODE");
+        $u1->setIpAddress("1.1.1.1");
+        $u1->setRefreshToken("RTOKEN");
+
+        $u2->setUsername("CloverCoin");
+
+        echo "<pre>";
+        print_r($this->userdao->patch($u1, $u2));
+    }
+
+    public function dbTest() {
+
+    }
+
 }
 
 /* end of file test.php */
