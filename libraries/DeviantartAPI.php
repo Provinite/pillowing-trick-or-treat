@@ -33,6 +33,14 @@ class DeviantartAPI {
     //our CI instance
     private $CI;
 
+    public function getAccessToken() {
+        return $this->accessToken;
+    }
+
+    public function getRefreshToken() {
+        return $this->refreshToken;
+    }
+
     public function __construct($data) {
         $this->apiBaseUrl = $data['api_base'];
         $this->apiClientSecret = $data['oauth_secret'];
