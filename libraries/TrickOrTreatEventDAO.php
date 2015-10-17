@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class TrickOrTreatDAO extends aDAO {
+class TrickOrTreatEventDAO extends aDAO {
 
     public function __construct() {
         parent::__construct();
