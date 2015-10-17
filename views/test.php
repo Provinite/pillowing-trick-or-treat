@@ -237,6 +237,10 @@
             float:left;
             width: 250px;
         }
+
+        a {
+            color: #E87952;
+        }
     </style>
 </head>
 
@@ -253,6 +257,7 @@
     <div class="section second" data-anchor="main">
         <div id="main_content">
             <ul class="txtrotate">
+                <!-- Info -->
                 <li>
                     <h1>Welcome to Halloween at the Pillowing Pile</h1>
                     <hr />
@@ -263,11 +268,17 @@
                     Once you have granted access to the app, scroll on down to the Trick-or-Treat page to get your candy or prize!<br /><br />
                     <strong>Trick or Treat will reset daily at 6am (USA Central Time) and if you're following the Pillowing-Pile DA group you will get another reset at 6pm!</strong>
                 </li>
+                <!-- End Info -->
+                <!-- Help -->
                 <li>
                     <h1>Need Some Help?</h1>
                     <hr />
-                    TextThree
+                    If you have any questions about Pillowings or the Trick-or-Treat event, head on over to the <a href="#">Help Discussion</a>.
+                    <br /><br />
+                    If you're having issues with the site, please contact <a href="http://clovercoin.deviantart.com">CloverCoin @ DA</a>.
                 </li>
+                <!-- End Help -->
+                <!-- Credits -->
                 <li>
                     <h1>Special Thanks</h1>
                     <hr />
@@ -287,6 +298,8 @@
                         <br style="clear:both;" />
                     </div>
                 </li>
+                <!-- End Credits -->
+                <!-- Log In -->
                 <li>
                     <h1>Ready to Get Started?</h1>
                     <hr />
@@ -301,6 +314,7 @@
                         <strong><span class="clickhere">Click</span></strong>
                     </div>
                 </li>
+                <!-- End Log In -->
             </ul>
             <div class="buttons">
                 <i class="fa fa-info txtBtn txtBtnActive" data-idx="0"></i>
