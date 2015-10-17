@@ -27,11 +27,13 @@ class Welcome extends CI_Controller {
         print_r($_GET);
         echo "\n\nSERVER:\n";
         print_r($_SERVER);
+
+        $this->deviantartapi->placebo();
 	}
 
     public function whoami() {
-        $conn = curl_init('https://');
     }
+
 }
 
 /* End of file welcome.php */
