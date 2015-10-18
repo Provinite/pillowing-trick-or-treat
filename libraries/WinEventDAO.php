@@ -40,7 +40,9 @@ class WinEventDAO extends aDAO {
         $fields = array(
             'id' => array(
                 'type' => 'INT',
-                'constraint' => '9'
+                'constraint' => '9',
+                'unsigned' => true,
+                'auto_increment' => true
             ),
             'user_id' => array(
                 'type' => 'VARCHAR',
