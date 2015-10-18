@@ -27,8 +27,12 @@ class Test extends CI_Controller {
         print_r($this->deviantartapi->userIsWatching("pillowing-pile"));
     }
 
-    public function populateJunkData() {
-
+    public function sample() {
+        $this->output->enable_profiler(TRUE);
+        $string = "getHavingNameLike";
+        echo $string . "('name')";
+        echo '<pre>';
+        print_r($this->prizedao->$string('prize'));
     }
 
     public function patchTest() {
@@ -47,8 +51,11 @@ class Test extends CI_Controller {
         print_r($this->userdao->patch($u1, $u2));
     }
 
-    public function dbTest() {
-
+    public function generateSchema() {
+        $this->prizedao->generateSchema();
+        $this->trickortreateventdao->generateSchema();
+        $this->userdao->generateSchema();
+        $this->wineventdao->generateSchema();
     }
 
     public function index() {

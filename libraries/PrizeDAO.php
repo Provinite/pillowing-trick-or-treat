@@ -44,7 +44,8 @@ class PrizeDAO extends aDAO {
             'id' => array(
                 'type' => 'INT',
                 'constraint' => '9',
-                'unsigned' => true
+                'unsigned' => true,
+                'auto_increment' => true
             ),
             'name' => array(
                 'type' => 'VARCHAR',
