@@ -73,7 +73,7 @@ class Test extends CI_Controller {
             $nextReset = ($nextReset < $nextWatchReset) ? $nextReset : $nextWatchReset;
         }
 
-        if ($lastTime < $lastReset) { //no trick or treating yet
+        if ($lastTime > $lastReset) { //no trick or treating yet
             $this->db->query("UNLOCK TABLES;");
             $return = new stdClass();
 
