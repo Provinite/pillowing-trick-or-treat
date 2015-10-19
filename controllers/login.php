@@ -25,6 +25,7 @@ class Login extends CI_Controller {
                 $this->deviantartapi->setAuthCode($this->input->get('code'));
                 $this->deviantartapi->requestToken();
                 $result = $this->deviantartapi->whoami();
+
             } catch (Exception $e) {
                 //there was a problem connecting to DA. Let the user know nicely
             }

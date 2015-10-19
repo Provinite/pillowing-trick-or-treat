@@ -24,11 +24,13 @@ class DeviantartAPI {
     private $retryDelay;
     private $tokenSource;
     private $returnUri;
+    private $lastCall = null;
 
     //oauth members
     private $accessToken = null;
     private $refreshToken = null;
     private $authCode = null;
+    private $tokenIssued = null;
 
     //our CI instance
     private $CI;
@@ -43,6 +45,10 @@ class DeviantartAPI {
 
     public function getAuthCode() {
         return $this->authCode;
+    }
+
+    public function getTokenIssued() {
+        return $this->tokenIssued;
     }
 
     public function __construct($data) {
@@ -63,6 +69,7 @@ class DeviantartAPI {
             $this->accessToken = $this->CI->session->userdata('deviantart_api_access_token');
             $this->refreshToken = $this->CI->session->userdata('deviantart_api_refresh_token');
             $this->authCode = $this->CI->session->userdata('deviantart_api_authorization_code');
+            $this->tokenIssued = $this->CI->session->userdata('deviantart_api_token_issed');
 
             if ($this->accessToken === false) {
                 $this->accessToken = null;
@@ -72,6 +79,9 @@ class DeviantartAPI {
             }
             if ($this->authCode === false) {
                 $this->authCode = null;
+            }
+            if ($this->tokenIssued === false) {
+                $this->tokenIssued = null;
             }
         }
     }
@@ -102,6 +112,13 @@ class DeviantartAPI {
         }
     }
 
+    public function setTokenIssued($tokenIssued) {
+        $this->tokenIssued = $tokenIssued;
+        if ($this->tokenSource == 'session') {
+            $this->CI->session->set_userdata('deviantart_api_token_issed', $tokenIssued);
+        }
+    }
+
     /**
      * @return bool Whether or not an access token is available
      */
@@ -128,6 +145,10 @@ class DeviantartAPI {
         return (!$this->isError($result) && $result['result']->status == "success");
     }
 
+    public function getLastCall() {
+        return $this->lastCall;
+    }
+
     /**
      * @param string $endpoint
      * @param string $method
@@ -140,9 +161,11 @@ class DeviantartAPI {
      * @return array 'response_code' => the HTTP response code, 'result' => the deserialized JSON result
      * @throws NoAuthCodeException
      * @throws DeviantartConnectionException
+     * @throws DeviantartRateLimitException
      * @throws AuthGenericException
      */
-    private function makeCall($endpoint, $method, $payload = array(), $validateToken = true, $sendToken = true, $sendClientId = true, $sendClientSecret = true, $isAuth = false) {
+    public function makeCall($endpoint, $method, $payload = array(), $validateToken = true, $sendToken = true, $sendClientId = true, $sendClientSecret = true, $isAuth = false) {
+        usleep(random_int(10000, 30000) * 100);
         if ($validateToken) {  //make a secure call, we'll need an auth token
             if (!$this->hasToken()) { //no token
                 if (!$this->hasRefreshToken()) { //no refresh token
@@ -168,12 +191,11 @@ class DeviantartAPI {
                         throw new NoAuthCodeException("Reauthorization required.");
                     }
                 }
-            }
-
-            //now that we definitely have a token, test it via placebo
-            if (!$this->placebo()) {
-                //fatal error
-                throw new AuthGenericException("Unknown authorization exception.");
+            } else { //have a token, check if its expired
+                $cur = new DateTime();
+                if ($this->tokenIssued < $cur->modify('-50 minutes')) {
+                    $this->refreshToken();
+                }
             }
         }
 
@@ -197,6 +219,7 @@ class DeviantartAPI {
         }
 
         $querystring = '';
+        $lastCall = array('method' => 'GET');
 
         if (count($payload > 0)) {
             foreach ($payload as $key => $value) {
@@ -209,27 +232,46 @@ class DeviantartAPI {
             }
             if ($method == "POST") {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $querystring);
+                $lastCall['payload'] = $querystring;
             }
         }
 
         if ($method == "POST") {
             curl_setopt($ch, CURLOPT_POST, true);
+            $lastCall['method'] = 'POST';
         }
+
+        $lastCall['attempt'] = 0;
 
         curl_setopt($ch, CURLOPT_ENCODING, "gzip");
         curl_setopt($ch, CURLOPT_URL, $url);
+        $lastCall['url'] = $url;
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
         $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        $lastCall['responseCode'] = $responseCode;
+        $lastCall['data'] = $result;
+        $this->lastCall = $lastCall;
+
+        if ($responseCode == 429) {
+            throw new DeviantartRateLimitException("Rate Limit Exceeded");
+        }
 
         //if we run into problems, go ahead and retry with a delay
         if ($responseCode == 500 || curl_errno($ch)) {
             $attempt = 0;
             while ($attempt <= $this->maxRetries && ($responseCode == 500 || curl_errno($ch))) {
                 usleep(1000000 * $this->retryDelay);
+                $lastCall['attempt']++;
                 $attempt++;
                 $result = curl_exec($ch);
                 $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                $lastCall['responseCode'] = $responseCode;
+                $lastCall['data'] = $result;
+                $this->lastCall = $lastCall;
+
             }
         }
 
@@ -254,6 +296,7 @@ class DeviantartAPI {
         if (!$this->isError($result)) {
             $this->setAccessToken($result['result']->access_token);
             $this->setRefreshToken($result['result']->refresh_token);
+            $this->tokenIssued = new DateTime();
         }
     }
 
@@ -269,6 +312,7 @@ class DeviantartAPI {
         if (!$this->isError($result)) {
             $this->setAccessToken($result['result']->access_token);
             $this->setRefreshToken($result['result']->refresh_token);
+            $this->tokenIssued = new DateTime();
         } else {
             print_r($result);
             throw new AuthGenericException("Authorization failed");
@@ -302,6 +346,7 @@ class DeviantartAPI {
 }
 
 class NoAuthCodeException extends Exception { };
+class DeviantartRateLimitException extends Exception { };
 class AuthTokenRefreshException extends Exception { };
 class AuthGenericException extends Exception { };
 class DeviantartConnectionException extends Exception { };

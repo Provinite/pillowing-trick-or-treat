@@ -35,6 +35,53 @@ class Test extends CI_Controller {
         print_r($this->prizedao->$string('prize'));
     }
 
+    public function trickOrTreat() {
+        for ($i = 0; $i < 1; $i++) {
+            try {
+                $this->deviantartapi->userIsWatching('pillowing-pile');
+            } catch (Exception $ex) {
+                echo '<pre>';
+                print_r($ex);
+                echo "\n";
+                die(print_r($this->deviantartapi->getLastCall()));
+            }
+            echo "$i<br />";
+        }
+        die();
+        $this->output->enable_profiler(TRUE);
+        $lastEvent = $this->trickortreateventdao->getFirstHavingUser_IDEqualsOrderDescByDate_Time($this->session->userdata('uuid'));
+
+        $reset_time = $this->config->item('reset_time');
+        $reset_time_watching = $this->config->item('reset_time_watching');
+
+        $isWatching = $this->deviantartapi->userIsWatching('pillowing-pile');
+        if ($isWatching) {
+            $now = new DateTime();
+            $lastTime = new DateTime($lastEvent[0]->getDateTime());
+            $lastReset = new DateTime($reset_time);
+            $lastWatchReset = new DateTime($reset_time_watching);
+
+            while ($lastReset > $now) {
+                $lastReset->modify("-1 day");
+            }
+
+            while ($lastWatchReset > $now) {
+                $lastWatchReset->modify("-1 day");
+            }
+
+            echo $now->format("Y-m-d H:i:s");
+            echo "<br />";
+            echo $lastTime->format("Y-m-d H:i:s");
+            echo "<br />";
+            echo $lastReset->format("Y-m-d H:i:s");
+
+        } else {
+
+        }
+        //$prizes = $this->prizedao->getWithStockGreaterThan(0);
+
+    }
+
     public function getRandomPrize() {
         $this->output->enable_profiler();
         $prizes = $this->prizedao->getWithStockGreaterThan(0);

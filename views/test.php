@@ -227,7 +227,7 @@ function show_top_menu($loggedIn, $icon, $username) {
             text-align:justify;
             padding-left:40px;
             padding-right:40px;
-            min-height:300px;
+            min-height:500px;
         }
 
         .txtrotate h1 {
@@ -387,6 +387,18 @@ function show_top_menu($loggedIn, $icon, $username) {
         ul.txtrotate {
             list-style-type: none;
         }
+
+        img.header {
+            margin:0 auto;
+            display:block;
+            height:150px;
+        }
+
+        div.header {
+            margin:0 auto;
+            display: block;
+            height: 150px;
+        }
     </style>
 </head>
 
@@ -406,6 +418,7 @@ function show_top_menu($loggedIn, $icon, $username) {
             <ul class="txtrotate">
                 <!-- Info -->
                 <li>
+                    <img class="header" src="/apps/assets/raffle/img/headers/info.gif" />
                     <h1>Welcome to Halloween at the Pillowing Pile</h1>
                     <hr />
                     We will be hosting a trick or treat style event where everyone can come check here once, maybe twice,
@@ -418,6 +431,7 @@ function show_top_menu($loggedIn, $icon, $username) {
                 <!-- End Info -->
                 <!-- Help -->
                 <li>
+                    <img class="header" src="/apps/assets/raffle/img/headers/faq.png" />
                     <h1>Need Some Help?</h1>
                     <hr />
                     If you have any questions about Pillowings or the Trick-or-Treat event, head on over to the <a href="#">Help Discussion</a>.
@@ -427,6 +441,7 @@ function show_top_menu($loggedIn, $icon, $username) {
                 <!-- End Help -->
                 <!-- Credits -->
                 <li>
+                    <img class="header" src="/apps/assets/raffle/img/headers/credits.png" />
                     <h1>Special Thanks</h1>
                     <hr />
                     <div id="credits">
@@ -446,8 +461,10 @@ function show_top_menu($loggedIn, $icon, $username) {
                     </div>
                 </li>
                 <!-- End Credits -->
+                <?php if (!$loggedIn): ?>
                 <!-- Log In -->
                 <li>
+                    <div class="header"> </div>
                     <h1>Ready to Get Started?</h1>
                     <hr />
 
@@ -462,11 +479,27 @@ function show_top_menu($loggedIn, $icon, $username) {
                     </div>
                 </li>
                 <!-- End Log In -->
+                <?php else: ?>
+                <!-- Trick or Treat -->
+                <li>
+                    <h1>Trick or Treat!</h1>
+                    <hr />
+                    <div style="text-align:center">
+                        Tricky Treat!
+                    </div>
+                </li>
+                <!-- End Trick or Treat -->
+                <?php endif; ?>
             </ul>
             <div class="buttons">
                 <i class="fa fa-info txtBtn txtBtnActive" data-idx="0"></i>
                 <i class="fa fa-question-circle txtBtn" data-idx="1"></i>
-                <i class="fa fa-deviantart txtBtn" data-idx="3"></i>
+                <?php
+                if (!$loggedIn)
+                    echo '<i class="fa fa-deviantart txtBtn" data-idx="3"></i>';
+                else
+                    echo '<i class="fa fa-gift txtBtn" data-idx="3"></i>';
+                ?>
                 <i class="fa fa-heart txtBtn" data-idx="2"></i>
             </div>
         </div>
