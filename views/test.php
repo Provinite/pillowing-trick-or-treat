@@ -1,6 +1,22 @@
-<!DOCTYPE html>
+<?php
+function show_top_menu($loggedIn, $icon, $username) {
+    $ret = '<div id="topmenu">';
+    if ($loggedIn) {
+        $ret .= '
+        <img src="' . $icon . '" class="usericon" />
+        <div class="username">
+            ' . $username . ' <span class="logoutLink">(Log Out)</span>
+        </div>';
+    } else {
+        $ret .= '<img src="/apps/assets/raffle/img/login-with-da-small.png" class="login loginLink" />';
+    }
+    $ret .= '</div>';
+    return $ret;
+}
+?><!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=480">
     <title>CloverCoin - Raffle</title>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.7.4/jquery.fullPage.js"></script>
@@ -23,7 +39,8 @@
             };
 
             var setHtml = function(el) {
-                el.children().first().html(el.data('tr-htmls')[el.data('tr-idx')]);
+                el.children().first().children().first().detach();
+                el.children().first().append(el.data('tr-htmls')[el.data('tr-idx')]);
             };
 
             $.fn.extend({
@@ -42,7 +59,8 @@
                             }
 
                             el.children().each(function(i, e) {
-                                htmls.push($(e).html());
+                                htmls.push($(e));
+                                $(e).detach();
                             });
 
                             el.data('tr-idx', 0);
@@ -75,6 +93,18 @@
             });
             var textRotator = $('.txtrotate');
 
+            $('.loginLink').click(function() {
+                var lnkUrl = '<?php echo site_url('login'); ?>';
+                lnkUrl = lnkUrl + '?return_url=' + window.location;
+                window.location.href = lnkUrl;
+            });
+
+            $('.logoutLink').click(function() {
+                var lnkUrl = '<?php echo site_url('login/logout'); ?>';
+                lnkUrl = lnkUrl + '?return_url=' + window.location;
+                window.location.href = lnkUrl;
+            });
+
             $(textRotator).textRotate({
                 outTime: 500,
                 inTime: 500
@@ -86,7 +116,25 @@
                 var idx = $(this).data('idx');
                 $(textRotator).textRotate(idx);
                 $(this).addClass('txtBtnActive');
+                window.location.hash = '#main' + idx;
             });
+
+            var hash = window.location.hash;
+            console.log(hash);
+            if (hash.substr(0, 5) == "#main") {
+                var idx = hash.substr(5);
+                $('.txtBtn').each(function() {
+                    if (idx == $(this).data('idx')) {
+                        $(this).click();
+                    }
+                });
+                window.location.hash = '#main';
+                setTimeout(function() {
+                    if (window.location.hash == '#main'){
+                        window.location.hash = '#main' + idx;
+                    }
+                }, 2000);
+            }
         });
     </script>
     <style type="text/css">
@@ -188,7 +236,7 @@
             vertical-align: middle;
             background-color:#3D484C;
             width:360px;
-            margin:0 auto;
+            margin:5px auto;
             box-sizing:border-box;
             padding-top:5px;
         }
@@ -241,6 +289,82 @@
         a {
             color: #E87952;
         }
+        div#topmenu {
+            position:absolute;
+            top:0;
+            right:0;
+            padding-top:5px;
+            padding-left: 15px;
+            padding-right:15px;
+            vertical-align:middle;
+            z-index:1;
+            background-color:#62767C;
+            color: #FFF;
+            height:50px;
+            box-sizing:border-box;
+            border-radius:50px;
+            margin-top:5px;
+            margin-right:5px;
+            opacity: 0.75;
+
+            -webkit-transition: all 0.2s ease-in-out;
+            -moz-transition: all 0.2s ease-in-out;
+            -o-transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out;
+        }
+
+        @media screen and (max-width: 480px) {
+            div#topmenu {
+                width:100%;
+                top:0;
+                left:0;
+                border-radius:0;
+                margin:0;
+                opacity: 1;
+            }
+
+            div.section {
+                padding-top:30px;
+            }
+        }
+
+        div#topmenu:hover {
+            opacity: 1;
+            -webkit-transition: all 0.2s ease-in-out;
+            -moz-transition: all 0.2s ease-in-out;
+            -o-transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out;
+        }
+        div.username {
+            display:inline-block;
+            line-height: 40px;
+            vertical-align: top;
+            height: 40px;
+        }
+        div.username span {
+            font-size:10px;
+            color:#FFF;
+        }
+        img.usericon {
+            width: 40px;
+            height:40px;
+        }
+
+        div#topmenu img.login {
+            cursor:pointer;
+        }
+
+        .logoutLink {
+            cursor: pointer;
+        }
+
+        .loginLink {
+            cursor: pointer;
+        }
+
+        ul.txtrotate {
+            list-style-type: none;
+        }
     </style>
 </head>
 
@@ -255,6 +379,7 @@
         </a>
     </div>
     <div class="section second" data-anchor="main">
+        <?php echo show_top_menu($loggedIn, $icon, $username); ?>
         <div id="main_content">
             <ul class="txtrotate">
                 <!-- Info -->
@@ -305,8 +430,8 @@
                     <hr />
 
                     <div style="text-align:center;">
-                        <div class="da_button">
-                            <img src="/apps/assets/raffle/img/login-with-da.png" />
+                        <div class="da_button loginLink">
+                            <img src="/apps/assets/raffle/img/login-with-da.png" class="loginLink" />
                         </div>
                     </div>
                     <div style="text-align:center;">
@@ -324,8 +449,14 @@
             </div>
         </div>
     </div>
-    <div class="section" data-anchor="page3">Some section</div>
-    <div class="section" data-anchor="page4">Some section</div>
+    <div class="section" data-anchor="page3">
+        <?php echo show_top_menu($loggedIn, $icon, $username); ?>
+        Some section
+    </div>
+    <div class="section" data-anchor="page4">
+        <?php echo show_top_menu($loggedIn, $icon, $username); ?>
+        Some section
+    </div>
 </div>
 </body>
 

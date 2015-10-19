@@ -8,6 +8,7 @@ class User implements iEntity {
     private $refreshToken = null;
     private $tokenIssued = null;
     private $ipAddress = null;
+    private $icon = null;
 
     public function getIdField() {
         return "uuid";
@@ -16,6 +17,19 @@ class User implements iEntity {
     public function getId() {
         return $this->getUuid();
     }
+
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
+    }
+
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+
+
     public function setAccessToken($accessToken)
     {
         $this->accessToken = $accessToken;

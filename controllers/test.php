@@ -119,7 +119,18 @@ class Test extends CI_Controller {
     }
 
     public function index() {
-        $this->load->view('test');
+        $viewData = array();
+        if ($this->session->userdata('uuid')) {
+            $viewData['loggedIn'] = true;
+            $viewData['username'] = $this->session->userdata('username');
+            $viewData['icon'] = $this->session->userdata('usericon');
+        } else {
+            $viewData['loggedIn'] = false;
+            $viewData['icon'] = '';
+            $viewData['username'] = '';
+        }
+
+        $this->load->view('test', $viewData);
     }
 
 }

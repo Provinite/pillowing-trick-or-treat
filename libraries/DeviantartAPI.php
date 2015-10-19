@@ -41,6 +41,10 @@ class DeviantartAPI {
         return $this->refreshToken;
     }
 
+    public function getAuthCode() {
+        return $this->authCode;
+    }
+
     public function __construct($data) {
         $this->apiBaseUrl = $data['api_base'];
         $this->apiClientSecret = $data['oauth_secret'];
