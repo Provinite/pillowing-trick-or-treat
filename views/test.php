@@ -399,6 +399,13 @@ function show_top_menu($loggedIn, $icon, $username) {
             display: block;
             height: 150px;
         }
+
+    div#tot_pane {
+        margin: 0 auto;
+        background-image: url('/apps/assets/raffle/img/door.png');
+        width:450px;
+        height:500px;
+    }
     </style>
 </head>
 
@@ -482,10 +489,7 @@ function show_top_menu($loggedIn, $icon, $username) {
                 <?php else: ?>
                 <!-- Trick or Treat -->
                 <li>
-                    <h1>Trick or Treat!</h1>
-                    <hr />
-                    <div style="text-align:center">
-                        Tricky Treat!
+                    <div id="tot_pane">
                     </div>
                 </li>
                 <!-- End Trick or Treat -->

@@ -36,49 +36,71 @@ class Test extends CI_Controller {
     }
 
     public function trickOrTreat() {
-        for ($i = 0; $i < 1; $i++) {
-            try {
-                $this->deviantartapi->userIsWatching('pillowing-pile');
-            } catch (Exception $ex) {
-                echo '<pre>';
-                print_r($ex);
-                echo "\n";
-                die(print_r($this->deviantartapi->getLastCall()));
-            }
-            echo "$i<br />";
-        }
-        die();
-        $this->output->enable_profiler(TRUE);
-        $lastEvent = $this->trickortreateventdao->getFirstHavingUser_IDEqualsOrderDescByDate_Time($this->session->userdata('uuid'));
-
         $reset_time = $this->config->item('reset_time');
         $reset_time_watching = $this->config->item('reset_time_watching');
+        $isWatching = $this->session->userdata('is_watching');
 
-        $isWatching = $this->deviantartapi->userIsWatching('pillowing-pile');
-        if ($isWatching) {
-            $now = new DateTime();
-            $lastTime = new DateTime($lastEvent[0]->getDateTime());
-            $lastReset = new DateTime($reset_time);
-            $lastWatchReset = new DateTime($reset_time_watching);
+        $this->db->query("LOCK TABLES `trick_or_treat_events` WRITE, `win_events` WRITE, `prizes` WRITE;");
+        //fetch our last event
+        $lastEvent = $this->trickortreateventdao->getFirstHavingUser_IDEqualsOrderDescByDate_Time($this->session->userdata('uuid'));
 
-            while ($lastReset > $now) {
-                $lastReset->modify("-1 day");
-            }
+        $now = new DateTime();
+        $lastTime = new DateTime($lastEvent[0]->getDateTime());
 
-            while ($lastWatchReset > $now) {
-                $lastWatchReset->modify("-1 day");
-            }
+        $lastReset = new DateTime($reset_time);
+        $lastWatchReset = new DateTime($reset_time_watching);
 
-            echo $now->format("Y-m-d H:i:s");
-            echo "<br />";
-            echo $lastTime->format("Y-m-d H:i:s");
-            echo "<br />";
-            echo $lastReset->format("Y-m-d H:i:s");
+        $nextReset = new DateTime($reset_time);
+        $nextWatchReset = new DateTime($reset_time_watching);
 
-        } else {
+        $last = null;
 
+        while ($lastReset > $now) {
+            $lastReset->modify("-1 day");
+            $nextReset->modify("-1 day");
         }
-        //$prizes = $this->prizedao->getWithStockGreaterThan(0);
+
+        while ($lastWatchReset > $now) {
+            $lastWatchReset->modify("-1 day");
+            $nextWatchReset->modify("-1 day");
+        }
+
+        $nextWatchReset->modify("+1 day");
+        $nextReset->modify("+1 day");
+
+        if ($isWatching === true) {
+            $lastReset = ($lastReset > $lastWatchReset) ? $lastReset : $lastWatchReset;
+            $nextReset = ($nextReset < $nextWatchReset) ? $nextReset : $nextWatchReset;
+        }
+
+        if ($lastTime > $lastReset) { //no trick or treating yet
+            $this->db->query("UNLOCK TABLES;");
+            $return = new stdClass();
+
+            $tor = $nextReset->diff($now);
+            $tor->format("H:i:s");
+
+            $return->result = false;
+            $return->time_until_reset = $tor->format("%H:%I:%S");
+            print_r(json_encode($return));
+            die();
+        } else { //tricky treats time
+            $winrate = $this->config->item('win_rate');
+            $isWinner = (random_int(0, 99999) <= $winrate*1000);
+
+            if ($isWinner) {
+                $prizes = $this->prizedao->getWithStockGreaterThan(0);
+                
+            }
+
+
+
+
+
+
+            $this->db->query("UNLOCK TABLES;");
+        }
+
 
     }
 

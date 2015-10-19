@@ -21,13 +21,17 @@ class Login extends CI_Controller {
             $this->input->get('state') !== false &&
             $this->input->get('code') !== false) {
             $result = array();
+            $watching = false;
             try {
                 $this->deviantartapi->setAuthCode($this->input->get('code'));
                 $this->deviantartapi->requestToken();
+                usleep(500000);
                 $result = $this->deviantartapi->whoami();
-
+                usleep(500000);
+                $watching = $this->deviantartapi->userIsWatching('pillowing-pile');
             } catch (Exception $e) {
                 //there was a problem connecting to DA. Let the user know nicely
+                die("Is big problem.");
             }
             $username = $result['result']->username;
             $uuid = $result['result']->userid;
@@ -37,6 +41,8 @@ class Login extends CI_Controller {
             $user->setUuid($uuid);
             $user->setUsername($username);
             $user->setIcon($usericon);
+            $user->setIsWatching($watching);
+
             if ($this->input->valid_ip($_SERVER["HTTP_X_FORWARDED_FOR"])) {
                 $user->setIpAddress($_SERVER["HTTP_X_FORWARDED_FOR"]);
             } else {
@@ -51,6 +57,7 @@ class Login extends CI_Controller {
             $this->session->set_userdata('username', $username);
             $this->session->set_userdata('uuid', $uuid);
             $this->session->set_userdata('usericon', $usericon);
+            $this->session->set_userdata('is_watching', $watching);
             redirect($this->session->userdata('return_url'));
             die();
         }

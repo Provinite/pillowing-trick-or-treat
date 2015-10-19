@@ -9,6 +9,7 @@ class User implements iEntity {
     private $tokenIssued = null;
     private $ipAddress = null;
     private $icon = null;
+    private $isWatching = null;
 
     public function getIdField() {
         return "uuid";
@@ -26,6 +27,16 @@ class User implements iEntity {
     public function getIcon()
     {
         return $this->icon;
+    }
+
+    public function setIsWatching($isWatching)
+    {
+        $this->isWatching = $isWatching;
+    }
+
+    public function getIsWatching()
+    {
+        return $this->isWatching;
     }
 
 
