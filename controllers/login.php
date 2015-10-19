@@ -58,6 +58,7 @@ class Login extends CI_Controller {
             $this->session->set_userdata('uuid', $uuid);
             $this->session->set_userdata('usericon', $usericon);
             $this->session->set_userdata('is_watching', $watching);
+            $this->session->set_userdata('ip_address', $user->getIpAddress());
             redirect($this->session->userdata('return_url'));
             die();
         }

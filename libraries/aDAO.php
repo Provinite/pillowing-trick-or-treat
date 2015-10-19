@@ -174,7 +174,7 @@ abstract class aDAO {
             $update = $this->patch($existingEntity, $entity);
 
             $this->ci->db
-                ->where('uuid', $update->getUuid())
+                ->where($update->getIdField(), $update->getId())
                 ->set($this->arrayFromEntity($update))
                 ->update($this->table);
             return $update;
@@ -225,7 +225,7 @@ abstract class aDAO {
         $idCol = $idCol->getIdField();
 
         $count = $this->ci->db
-            ->select('id')
+            ->select($idCol)
             ->from($this->table)
             ->where($idCol, $id)
             ->get()

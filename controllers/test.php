@@ -73,7 +73,7 @@ class Test extends CI_Controller {
             $nextReset = ($nextReset < $nextWatchReset) ? $nextReset : $nextWatchReset;
         }
 
-        if ($lastTime > $lastReset) { //no trick or treating yet
+        if ($lastTime < $lastReset) { //no trick or treating yet
             $this->db->query("UNLOCK TABLES;");
             $return = new stdClass();
 
@@ -82,26 +82,101 @@ class Test extends CI_Controller {
 
             $return->result = false;
             $return->time_until_reset = $tor->format("%H:%I:%S");
-            print_r(json_encode($return));
+
+            header("Content-type: application/json");
+            echo(json_encode($return));
             die();
         } else { //tricky treats time
             $winrate = $this->config->item('win_rate');
             $isWinner = (random_int(0, 99999) <= $winrate*1000);
-
+            $prizesLeft = false;
             if ($isWinner) {
+                $prizeWon = null;
                 $prizes = $this->prizedao->getWithStockGreaterThan(0);
-                
+                $prizeRanges = array();
+                $start = 0;
+                $end = 0;
+                foreach ($prizes as $prize) {
+                    $range = $prize->getStock() * $prize->getWeight();
+                    $end = floor($start + 100*$range) - 1;
+                    $prizeRanges[] = array(
+                        'min' => $start,
+                        'max' => $end,
+                        'prize' => $prize
+                    );
+                    $start = $end + 1;
+                }
+                if ($end > 0) { //there's still prizes left
+                    $prizesLeft = true;
+                    $selection = random_int(0, $end);
+                    foreach ($prizeRanges as $range) {
+                        if ($selection >= $range['min'] && $selection <= $range['max']) {
+                            $prizeWon = $range['prize'];
+                            break;
+                        }
+                    }
+                    if (false) { $prizeWon = new Prize(); };
+                    $prizeWon->setStock($prizeWon->getStock() - 1);
+                    $uuid = $this->session->userdata('uuid');
+                    $ip = $this->session->userdata('ip_address');
+
+                    $tEvent = new TrickOrTreatEvent();
+                    $tEvent->setWinLoss("win");
+                    $tEvent->setIpAddress($ip);
+                    $tEvent->setUserId($uuid);
+                    $tEvent->setDateTime($now->format("Y-m-d H:i:s"));
+
+                    $wEvent = new WinEvent();
+                    $wEvent->setPrizeId($prizeWon->getId());
+                    $wEvent->setDatetime($now->format("Y-m-d H:i:s"));
+                    $wEvent->setUserId($uuid);
+                    $wEvent->setIpAddress($ip);
+
+                    $this->trickortreateventdao->save($tEvent);
+                    $this->wineventdao->save($wEvent);
+                    $this->prizedao->save($prizeWon);
+                    $this->db->query("UNLOCK TABLES;");
+
+                    $return = new stdClass();
+                    $return->result = true;
+                    $return->image = $prizeWon->getImage();
+                    $return->prize = $prizeWon->getName();
+                    $return->description = $prizeWon->getDescription();
+
+                    header("Content-type: application/json");
+
+                    echo json_encode($return);
+                    die();
+                }
             }
 
+            if (!$isWinner || $prizesLeft == false) {
+                //pick a candy somehow
+                //save a ToT event as a loss
+                $uuid = $this->session->userdata('uuid');
+                $ip = $this->session->userdata('ip_address');
 
+                $tEvent = new TrickOrTreatEvent();
+                $tEvent->setWinLoss("loss");
+                $tEvent->setIpAddress($ip);
+                $tEvent->setUserId($uuid);
+                $tEvent->setDateTime($now->format("Y-m-d H:i:s"));
+                $this->db->query("UNLOCK TABLES;");
 
+                $this->trickortreateventdao->save($tEvent);
 
+                $return = new stdClass();
+                $return->result = true;
+                $return->prize = "A Sweet Treat!";
+                $return->image = ""; // todo: pick a random image
+                $return->description = "";
 
+                header("Content-type: application/json");
 
-            $this->db->query("UNLOCK TABLES;");
+                echo json_encode($return);
+                die();
+            }
         }
-
-
     }
 
     public function getRandomPrize() {
