@@ -2,47 +2,24 @@
 
 class Test extends CI_Controller {
 
-    public function apientry() {
-        $this->session->set_userdata('state', 'myState');
-        echo "<pre>Auth URL: " . $this->deviantartapi->authorizationUrl('myState') . "\n";
-        echo '<a href="' . $this->deviantartapi->authorizationUrl('myState') . '">Auth Link</a>' . "\n";
-    }
-
-    public function apireturn() {
-        $code = $this->input->get('code');
-        $this->deviantartapi->setAuthCode($code);
-        $this->deviantartapi->requestToken();
-        $result = $this->deviantartapi->whoami();
-        $result = $result['result'];
-        echo "<pre>";
-        echo "\n";
-        echo "Logged in as: <img src=\"" . $result->usericon . "\" />" . $result->username;
-        echo "\n";
-        print_r($result);
-    }
-
-    public function apiview() {
-        echo "<pre>";
-        echo "Watching? ";
-        print_r($this->deviantartapi->userIsWatching("pillowing-pile"));
-    }
-
-    public function sample() {
-        $this->output->enable_profiler(TRUE);
-        $string = "getHavingNameLike";
-        echo $string . "('name')";
-        echo '<pre>';
-        print_r($this->prizedao->$string('prize'));
-    }
-
     public function trickOrTreat() {
+        if ($this->session->userdata('uuid') === false) {
+            $this->output->set_status_header('401');
+            die();
+        }
+        $enforceResets = $this->config->item('enforce_reset_timers');
         $reset_time = $this->config->item('reset_time');
         $reset_time_watching = $this->config->item('reset_time_watching');
         $isWatching = $this->session->userdata('is_watching');
 
         $this->db->query("LOCK TABLES `trick_or_treat_events` WRITE, `win_events` WRITE, `prizes` WRITE;");
-        //fetch our last event
+        //fetch our user's latest ToT event
         $lastEvent = $this->trickortreateventdao->getFirstHavingUser_IDEqualsOrderDescByDate_Time($this->session->userdata('uuid'));
+
+        if (count($lastEvent) == 0) {
+            $lastEvent = array(new TrickOrTreatEvent());
+            $lastEvent[0]->setDateTime(date("Y-m-d H:i:s", strtotime("-100 days")));
+        }
 
         $now = new DateTime();
         $lastTime = new DateTime($lastEvent[0]->getDateTime());
@@ -52,8 +29,6 @@ class Test extends CI_Controller {
 
         $nextReset = new DateTime($reset_time);
         $nextWatchReset = new DateTime($reset_time_watching);
-
-        $last = null;
 
         while ($lastReset > $now) {
             $lastReset->modify("-1 day");
@@ -71,6 +46,10 @@ class Test extends CI_Controller {
         if ($isWatching === true) {
             $lastReset = ($lastReset > $lastWatchReset) ? $lastReset : $lastWatchReset;
             $nextReset = ($nextReset < $nextWatchReset) ? $nextReset : $nextWatchReset;
+        }
+
+        if ($enforceResets === false) {
+            $lastTime = $lastReset;
         }
 
         if ($lastTime > $lastReset) { //no trick or treating yet
@@ -139,7 +118,7 @@ class Test extends CI_Controller {
 
                     $return = new stdClass();
                     $return->result = true;
-                    $return->image = $prizeWon->getImage();
+                    $return->image = $this->trickortreatmodel->getImageLink($prizeWon->getImage());
                     $return->prize = $prizeWon->getName();
                     $return->description = $prizeWon->getDescription();
 
@@ -168,8 +147,8 @@ class Test extends CI_Controller {
                 $return = new stdClass();
                 $return->result = true;
                 $return->prize = "A Sweet Treat!";
-                $return->image = ""; // todo: pick a random image
-                $return->description = "";
+                $return->image = $this->trickortreatmodel->getRandomFile();
+                $return->description = "Oh wow, candy! This really is Halloween after all, jeez looks like you were scared for nothing. You'll have to try again later to see what other treats you get!";
 
                 header("Content-type: application/json");
 
@@ -177,89 +156,6 @@ class Test extends CI_Controller {
                 die();
             }
         }
-    }
-
-    public function getRandomPrize() {
-        $this->output->enable_profiler();
-        $prizes = $this->prizedao->getWithStockGreaterThan(0);
-        echo "<pre>";
-        $stats = array(0,0,0,0,0,0,0,0);
-        $iterations = 12000;
-        $winrate = 60;
-        $prizeRanges = array();
-        for ($k = 0; $k < $iterations; $k++) {
-            $winner = (random_int(0, 9999) <= $winrate);
-            if (!$winner) {
-                $stats[0]++;
-                continue;
-            }
-            $prizeRanges = array();
-            $start = 0;
-            $end = 0;
-            foreach ($prizes as $prize) {
-                $range = $prize->getStock() * $prize->getWeight();
-                $end = floor($start + 100*$range) - 1;
-                $prizeRanges[] = array(
-                    'min' => $start,
-                    'max' => $end,
-                    'prize' => $prize
-                );
-                $start = $end + 1;
-            }
-            if ($end <= 0) { $stats[0]++; continue; }
-            $selection = random_int(0, $end);
-            foreach ($prizeRanges as $range) {
-                if ($selection >= $range['min'] && $selection <= $range['max']) {
-                    $prize = $range['prize'];
-                    $prize->setStock($prize->getStock() - 1);
-                    $stats[$range['prize']->getId()]++;
-
-                    break;
-                }
-            }
-        }
-        $totalwinners = 0;
-        foreach ($stats as $key => $stat) {
-            $prizename = "";
-            if ($stat == 0) {
-                continue;
-            }
-            if ($key > 0) {
-                $totalwinners += $stat;
-            }
-            if ($key > 0 && array_key_exists($key-1, $prizes)) {
-                $prizename = $prizes[$key-1]->getName();
-            }
-            $percent = $stat / $iterations;
-            $percent = $percent * 100;
-            echo "$key: $stat $prizename ($percent%)\n";
-        }
-        echo "Win Rate: " . $winrate / 10000 * 100 . "%\n";
-        echo "Total Winners: $totalwinners (" . ($totalwinners - 81) . ")";
-        echo "\n";
-    }
-
-    public function patchTest() {
-        $u1 = new User();
-        $u2 = new User();
-
-        $u1->setUsername("Provinite");
-        $u1->setAccessToken("ATOKEN");
-        $u1->setAuthCode("ACODE");
-        $u1->setIpAddress("1.1.1.1");
-        $u1->setRefreshToken("RTOKEN");
-
-        $u2->setUsername("CloverCoin");
-
-        echo "<pre>";
-        print_r($this->userdao->patch($u1, $u2));
-    }
-
-    public function generateSchema() {
-        $this->prizedao->generateSchema();
-        $this->trickortreateventdao->generateSchema();
-        $this->userdao->generateSchema();
-        $this->wineventdao->generateSchema();
     }
 
     public function index() {
