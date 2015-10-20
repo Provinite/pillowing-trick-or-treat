@@ -814,14 +814,6 @@ function show_top_menu($loggedIn, $icon, $username) {
             </div>
         </div>
     </div>
-    <div class="section" data-anchor="page3">
-        <?php echo show_top_menu($loggedIn, $icon, $username); ?>
-        Some section
-    </div>
-    <div class="section" data-anchor="page4">
-        <?php echo show_top_menu($loggedIn, $icon, $username); ?>
-        Some section
-    </div>
 </div>
 </body>
 
