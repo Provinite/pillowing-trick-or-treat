@@ -842,7 +842,7 @@ function show_top_menu($loggedIn, $icon, $username) {
                 <?php if (!$loggedIn): ?>
                 <!-- Log In -->
                 <li>
-                    <div class="header"> </div>
+                    <img class="header" src="/apps/assets/raffle/img/login.png" />
                     <h1>Ready to Get Started?</h1>
                     <hr />
 
