@@ -771,10 +771,12 @@ function show_top_menu($loggedIn, $icon, $username) {
                 <li>
                     <img class="header" src="/apps/assets/raffle/img/headers/faq.png" />
                     <h1>Need Some Help?</h1>
-                    <hr />
-                    If you have any questions about Pillowings or the Trick-or-Treat event, head on over to the <a href="#">Help Discussion</a>.
+                    If you have any problems or questions for us, you can check out the <a href="">Frequently Asked Questions event journal</a>!
                     <br /><br />
-                    If you're having issues with the site, please contact <a href="http://clovercoin.deviantart.com">CloverCoin @ DA</a>.
+                    If you are experiencing errors with the website please comment on the journal and ping <a href="http://clovercoin.deviantart.com">CloverCoin</a> so she and Prov can check into the problem for you!
+                    <br /><br />
+                    We hope to make this a smooth and easy to understand experience for all our users. So please don’t be afraid to ask questions! We’ll do our best to help when we can.<br />
+
                 </li>
                 <!-- End Help -->
                 <!-- Credits -->
@@ -898,7 +900,7 @@ function show_top_menu($loggedIn, $icon, $username) {
                     <hr />
                     Here you can see your ToT history!
                 </li>
-                <!-- Prizes -->
+                <!-- End Prizes -->
             </ul>
             <div class="buttons">
                 <div><i class="fa fa-info txtBtn txtBtnActive" data-idx="0"></i><span class="label">Info</span></div>
