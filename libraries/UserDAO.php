@@ -18,7 +18,9 @@ class UserDAO extends aDAO {
             "auth_code"     => $user->getAuthCode(),
             "username"      => $user->getUsername(),
             "ip_address"    => $user->getIpAddress(),
-            "token_issued"  => $user->getTokenIssued()
+            "token_issued"  => $user->getTokenIssued(),
+            'icon'          => $user->getIcon(),
+            'is_watching'   => $user->getIsWatching()
         );
     }
 
@@ -35,6 +37,8 @@ class UserDAO extends aDAO {
         $ret->setUsername($user['username']);
         $ret->setIpAddress($user['ip_address']);
         $ret->setTokenIssued($user['token_issued']);
+        $ret->setIcon($user['icon']);
+        $ret->setisWatching($user['is_watching']);
 
         return $ret;
     }
@@ -74,6 +78,16 @@ class UserDAO extends aDAO {
             'token_issued' => array(
                 'type' => 'DATETIME',
                 'null' => true
+            ),
+            'icon' => array(
+                'type' => 'VARCHAR',
+                'constraint' => '300',
+                'null' => true
+            ),
+            'is_watching' => array(
+                'type' => 'VARCHAR',
+                'constraint' => 10,
+                'default' => '0'
             )
         );
 

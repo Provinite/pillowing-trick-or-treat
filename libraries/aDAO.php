@@ -13,18 +13,23 @@ abstract class aDAO {
         //$dao->get[First[N]]With([Variable[Not](Equals|Contains|StartsWith|EndsWith|Between)][AND|OR])*
         $pattern = '/get((?:First)?)(\d*)?(?:With|Having|Where)(.*)/';//([a-zA-Z0-9_]+?)(Not)?(StartsWith|EndsWith|Like|Contains|Equals|Is)(And|Or|$)?/';
         $pattern2 = '/([a-zA-Z0-9_]+?)(Not)?(StartsWith|EndsWith|Like|Contains|Equals|Is|In|LessThan|GreaterThan)(And|Or|$)?/';
+        $pattern3 = '/Order(Desc|Asc)By([a-zA-Z0-9_]+)/';
         $matches = array();
+        $matches2 = array();
+        $matches3 = array();
         $result = preg_match_all($pattern, $name, $matches, PREG_SET_ORDER);
         //echo "<pre>";
         //echo "Result: $result\n\n";
         //print_r($matches);
 
-        $matches2 = array();
+
         //echo "\n\nPattern 2:\n";
         $query = $matches[0][3];
         $result = preg_match_all($pattern2, $query, $matches2, PREG_SET_ORDER);
         //echo "Result: $result\n\n";
         //print_r($matches2);
+
+        $result3 = preg_match_all($pattern3, $query, $matches3, PREG_SET_ORDER);
 
         $i = 0;
 
@@ -132,6 +137,15 @@ abstract class aDAO {
             $i++;
         }
 
+        if ($result3) {
+            $matches3 = $matches3[0];
+            if ($matches3[1] == "") {
+                $matches3[1] = "ASC";
+            }
+            $matches3[1] = strtoupper($matches3[1]);
+            $this->ci->db->order_by($matches3[2], $matches3[1]);
+        }
+
         if ($matches[0][1] === "First" && $matches[0][2] === "") {
             $this->ci->db->limit(1);
         } elseif ($matches[0][1] === "First" && $matches[0][2] !== "") {
@@ -143,6 +157,7 @@ abstract class aDAO {
         foreach ($result->result() as $row) {
             $return[] = $this->entityFromObject($row);
         }
+
         return $return;
     }
 
@@ -159,7 +174,7 @@ abstract class aDAO {
             $update = $this->patch($existingEntity, $entity);
 
             $this->ci->db
-                ->where('uuid', $update->getUuid())
+                ->where($update->getIdField(), $update->getId())
                 ->set($this->arrayFromEntity($update))
                 ->update($this->table);
             return $update;
@@ -210,7 +225,7 @@ abstract class aDAO {
         $idCol = $idCol->getIdField();
 
         $count = $this->ci->db
-            ->select('id')
+            ->select($idCol)
             ->from($this->table)
             ->where($idCol, $id)
             ->get()
