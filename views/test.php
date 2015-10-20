@@ -5,8 +5,13 @@ function show_top_menu($loggedIn, $icon, $username) {
         $ret .= '
         <img src="' . $icon . '" class="usericon" />
         <div class="username">
-            ' . $username . ' <span class="logoutLink">(Log Out)</span>
-        </div>';
+            ' . $username . '
+        </div>
+        <ul>
+            <li class="prizeLink txtBtn" data-idx="4">My Prizes</li>
+            <li class="logoutLink">Log Out</li>
+        </ul>
+        ';
     } else {
         $ret .= '<img src="/apps/assets/raffle/img/login-with-da-small.png" class="login loginLink" />';
     }
@@ -167,14 +172,17 @@ function show_top_menu($loggedIn, $icon, $username) {
                 window.location.href = lnkUrl;
             });
 
-            $('.txtBtn').click(function() {
+            doBtnClick = function() {
                 if ($(this).hasClass('txtBtnActive')) { return; }
                 $('.txtBtn').removeClass('txtBtnActive');
                 var idx = $(this).data('idx');
                 $(textRotator).textRotate(idx);
-                $(this).addClass('txtBtnActive');
+                if ($(this).closest('.buttons').length > 0)
+                    $(this).addClass('txtBtnActive');
                 window.location.hash = '#main' + idx;
-            });
+            }
+
+            $('.txtBtn').click(doBtnClick);
 
             $("#tot_pane").one('click', function() {
 
@@ -257,6 +265,13 @@ function show_top_menu($loggedIn, $icon, $username) {
                 });
             });
 
+            $('#topmenu').click(function() {
+                var border = parseInt($(this).css("borderBottomLeftRadius"));
+                border = 25 - border;
+                $(this).find('ul').slideToggle();
+
+            });
+
             $(textRotator).textRotate({
                 outTime: 500,
                 inTime: 500
@@ -267,7 +282,7 @@ function show_top_menu($loggedIn, $icon, $username) {
                 var idx = hash.substr(5);
                 $('.txtBtn').each(function() {
                     if (idx == $(this).data('idx')) {
-                        $(this).click();
+                        doBtnClick.bind($(this))();
                     }
                 });
                 window.location.hash = '#main';
@@ -332,7 +347,7 @@ function show_top_menu($loggedIn, $icon, $username) {
             margin-top: 0;
         }
 
-        .txtBtn {
+        div.buttons .txtBtn {
             font-size:30pt;
         }
         i + .label {
@@ -344,33 +359,33 @@ function show_top_menu($loggedIn, $icon, $username) {
 
 
 
-        .txtBtn:not(.txtBtnActive) {
+        div.buttons .txtBtn:not(.txtBtnActive) {
             cursor: pointer;
         }
 
-        .txtBtn.txtBtnActive {
+        div.buttons .txtBtn.txtBtnActive {
             color:#E87952;
         }
-        .txtBtn.txtBtnActive + .label {
-            color:#E87952;
-        }
-
-        .txtBtn:hover {
+        div.buttons .txtBtn.txtBtnActive + .label {
             color:#E87952;
         }
 
-        .txtBtn.fa-deviantart:hover {
+        div.buttons .txtBtn:hover {
+            color:#E87952;
+        }
+
+        div.buttons .txtBtn.fa-deviantart:hover {
             color: #05CC47;
         }
-        .txtBtn.fa-deviantart:hover + .label {
+        div.buttons .txtBtn.fa-deviantart:hover + .label {
             color: #05CC47;
         }
 
-        .txtBtn.fa-deviantart.txtBtnActive {
+        div.buttons .txtBtn.fa-deviantart.txtBtnActive {
             color: #05CC47;
         }
 
-        .txtBtn.fa-deviantart.txtBtnActive + .label {
+        div.buttons .txtBtn.fa-deviantart.txtBtnActive + .label {
             color: #05CC47;
         }
 
@@ -473,6 +488,25 @@ function show_top_menu($loggedIn, $icon, $username) {
         a {
             color: #E87952;
         }
+
+        div#topmenu ul {
+            list-style-type: none;
+            padding: 0;
+            display: none;
+        }
+
+        div#topmenu ul li {
+            background-color: #62767C;
+        }
+
+        div#topmenu ul li + li {
+            margin-top:5px;
+        }
+
+        div#topmenu ul li:hover {
+            color: #E87952;
+        }
+
         div#topmenu {
             position:absolute;
             top:0;
@@ -484,12 +518,13 @@ function show_top_menu($loggedIn, $icon, $username) {
             z-index:1;
             background-color:#62767C;
             color: #FFF;
-            height:50px;
+            min-height:50px;
             box-sizing:border-box;
-            border-radius:50px;
+            border-radius:25px;
             margin-top:5px;
             margin-right:5px;
             opacity: 0.75;
+            cursor: pointer;
 
             -webkit-transition: all 0.2s ease-in-out;
             -moz-transition: all 0.2s ease-in-out;
@@ -824,6 +859,14 @@ function show_top_menu($loggedIn, $icon, $username) {
                 </li>
                 <!-- End Trick or Treat -->
                 <?php endif; ?>
+                <!-- Prizes -->
+                <li>
+                    <img class="header" src="/apps/assets/raffle/img/stats.png" />
+                    <h1>Your Prizes</h1>
+                    <hr />
+                    Here you can see your ToT history!
+                </li>
+                <!-- Prizes -->
             </ul>
             <div class="buttons">
                 <div><i class="fa fa-info txtBtn txtBtnActive" data-idx="0"></i><span class="label">Info</span></div>
