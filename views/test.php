@@ -334,14 +334,24 @@ function show_top_menu($loggedIn, $icon, $username) {
 
         .txtBtn {
             font-size:30pt;
-            padding:0 20px;
         }
+        i + .label {
+            font-size:8px;
+            display:block;
+            margin:0 auto;
+            width:48px;
+        }
+
+
 
         .txtBtn:not(.txtBtnActive) {
             cursor: pointer;
         }
 
         .txtBtn.txtBtnActive {
+            color:#E87952;
+        }
+        .txtBtn.txtBtnActive + .label {
             color:#E87952;
         }
 
@@ -352,8 +362,15 @@ function show_top_menu($loggedIn, $icon, $username) {
         .txtBtn.fa-deviantart:hover {
             color: #05CC47;
         }
+        .txtBtn.fa-deviantart:hover + .label {
+            color: #05CC47;
+        }
 
         .txtBtn.fa-deviantart.txtBtnActive {
+            color: #05CC47;
+        }
+
+        .txtBtn.fa-deviantart.txtBtnActive + .label {
             color: #05CC47;
         }
 
@@ -393,6 +410,15 @@ function show_top_menu($loggedIn, $icon, $username) {
             margin:5px auto;
             box-sizing:border-box;
             padding-top:5px;
+        }
+
+
+        div.buttons > div {
+            width: 49px;
+            float: left;
+            margin:0 20px;
+            position: relative;
+            top: -5px;
         }
 
         div.da_button {
@@ -639,8 +665,6 @@ function show_top_menu($loggedIn, $icon, $username) {
         vertical-align: middle;
         line-height: 350px;
     }
-
-
     </style>
 </head>
 
@@ -802,25 +826,19 @@ function show_top_menu($loggedIn, $icon, $username) {
                 <?php endif; ?>
             </ul>
             <div class="buttons">
-                <i class="fa fa-info txtBtn txtBtnActive" data-idx="0"></i>
-                <i class="fa fa-question-circle txtBtn" data-idx="1"></i>
+                <div><i class="fa fa-info txtBtn txtBtnActive" data-idx="0"></i><span class="label">Info</span></div>
+                <div><i class="fa fa-question-circle txtBtn" data-idx="1"></i><span class="label">Help</span></div>
+                <div>
                 <?php
                 if (!$loggedIn)
-                    echo '<i class="fa fa-deviantart txtBtn" data-idx="3"></i>';
+                    echo '<i class="fa fa-deviantart txtBtn" data-idx="3"></i><span class="label">Log In</span>';
                 else
-                    echo '<i class="fa fa-gift txtBtn" data-idx="3"></i>';
+                    echo '<i class="fa fa-gift txtBtn" data-idx="3"></i><span class="label">Trick or Treat</span>';
                 ?>
-                <i class="fa fa-heart txtBtn" data-idx="2"></i>
+                </div>
+                <div><i class="fa fa-heart txtBtn" data-idx="2"></i><span class="label">Credits</span></div>
             </div>
         </div>
-    </div>
-    <div class="section" data-anchor="page3">
-        <?php echo show_top_menu($loggedIn, $icon, $username); ?>
-        Some section
-    </div>
-    <div class="section" data-anchor="page4">
-        <?php echo show_top_menu($loggedIn, $icon, $username); ?>
-        Some section
     </div>
 </div>
 </body>
