@@ -72,11 +72,4 @@ class Login extends CI_Controller {
             redirect('test');
         die();
     }
-
-    public function apicheck() {
-        echo "<pre>";
-        print_r($this->session->all_userdata());
-        echo "\n\n";
-        print_r($this->userdao->get($this->session->userdata('uuid')));
-    }
 }
