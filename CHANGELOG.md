@@ -1,3 +1,13 @@
+### Release 0.3.0
+- Adds rate limiting to API Wrapper
+- Adds Order By to DAO magic method. [GH-13]
+- Adds IP Address to session. [GH-14]
+- Minimizes API calls to login only [GH-15]
+- Adds loading overlay for login [GH-16]
+- Adds login functionality and display [GH-10]
+- Adds User Icon to db schema [GH-9]
+- First round impelementation of ToT logic
+
 ### Release 0.2.0
 - Adds magic method to DAOs. [GH-5]
 - Fixes missing auto increments in schema [GH-7]
