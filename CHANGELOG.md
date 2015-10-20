@@ -1,3 +1,9 @@
+### Release 0.4.0
+- Adds deco for login page [GH-28]
+- Adds user dropdown menu [GH-27]
+- Adds google analytics [GH-25]
+- Adds noscript overlay [GH-24]
+
 ### Release 0.3.1
 - Adds text to nav buttons [GH-23]
 - Removes extra sections from layout [GH-20]
