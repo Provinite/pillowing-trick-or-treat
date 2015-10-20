@@ -25,7 +25,7 @@ class TrickOrTreatEventDAO extends aDAO {
      * @return TrickOrTreatEvent
      */
     public function entityFromArray(Array $trickOrTreatEvent) {
-        $ret = new WinEvent();
+        $ret = new TrickOrTreatEvent();
         $ret->setId($trickOrTreatEvent['id']);
         $ret->setUserId($trickOrTreatEvent['user_id']);
         $ret->setDatetime($trickOrTreatEvent['date_time']);
@@ -72,5 +72,5 @@ class TrickOrTreatEventDAO extends aDAO {
     }
 }
 
-/* end of file WinEventDAO.php */
+/* end of file TrickOrTreatEventDAO.php */
 /* location: libraries/WinEventDAO.php */
