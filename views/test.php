@@ -141,6 +141,8 @@ function show_top_menu($loggedIn, $icon, $username) {
         };
         var autoscroll = !mobileAndTabletcheck();
         $(document).ready(function() {
+            $('div#no_script').remove();
+
             $('#fullpage').fullpage({
                 afterLoad: function() {
                     $('body').trigger('resize');
@@ -665,10 +667,29 @@ function show_top_menu($loggedIn, $icon, $username) {
         vertical-align: middle;
         line-height: 350px;
     }
+    div#no_script {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-color:black;
+        color: white;
+        z-index: 1;
+    }
+    div#no_script > div {
+        margin: 200px auto;
+        width: 500px;
+        text-align:center;
+    }
     </style>
 </head>
 
 <body>
+<div id="no_script">
+    <div>Javascript <em>must</em> be enabled to use this site.<br /><br />
+    <a href="http://enable-javascript.com/"><i class="fa fa-hand-pointer-o"></i>How to Enable Javascript</a></div>
+</div>
 <div id="loading_overlay">
     <div>
         <i class="fa fa-spinner fa-pulse fa-5x"></i> Logging in . . .
