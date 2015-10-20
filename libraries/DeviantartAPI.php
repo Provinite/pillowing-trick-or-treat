@@ -193,7 +193,8 @@ class DeviantartAPI {
                 }
             } else { //have a token, check if its expired
                 $cur = new DateTime();
-                if ($this->tokenIssued < $cur->modify('-50 minutes')) {
+                $cur->modify('-50 minutes');
+                if ($this->tokenIssued < $cur) {
                     $this->refreshToken();
                 }
             }
@@ -296,7 +297,7 @@ class DeviantartAPI {
         if (!$this->isError($result)) {
             $this->setAccessToken($result['result']->access_token);
             $this->setRefreshToken($result['result']->refresh_token);
-            $this->tokenIssued = new DateTime();
+            $this->setTokenIssued(new DateTime());
         }
     }
 
@@ -312,7 +313,7 @@ class DeviantartAPI {
         if (!$this->isError($result)) {
             $this->setAccessToken($result['result']->access_token);
             $this->setRefreshToken($result['result']->refresh_token);
-            $this->tokenIssued = new DateTime();
+            $this->setTokenIssued(new DateTime());
         } else {
             print_r($result);
             throw new AuthGenericException("Authorization failed");

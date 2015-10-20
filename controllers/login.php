@@ -52,6 +52,7 @@ class Login extends CI_Controller {
             $user->setAuthCode($this->deviantartapi->getAuthCode());
             $user->setRefreshToken($this->deviantartapi->getRefreshToken());
 
+            $user->setTokenIssued($this->deviantartapi->getTokenIssued()->format('Y-m-d H:i:s'));
             $this->userdao->save($user);
 
             $this->session->set_userdata('username', $username);
