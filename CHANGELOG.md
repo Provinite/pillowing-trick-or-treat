@@ -1,3 +1,8 @@
+### Release 0.3.1
+- Adds text to nav buttons [GH-23]
+- Removes extra sections from layout [GH-20]
+- Removes extraneous controller functions [GH-18]
+
 ### Release 0.3.0
 - Adds rate limiting to API Wrapper
 - Adds Order By to DAO magic method. [GH-13]
