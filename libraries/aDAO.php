@@ -182,6 +182,9 @@ abstract class aDAO {
             $this->ci->db
                 ->set($this->arrayFromEntity($entity))
                 ->insert($this->table);
+            if ($this->db->_error_number()) {
+                throw new Exception("Problem saving to database");
+            }
             return $entity;
         }
     }
