@@ -33,6 +33,7 @@ function show_top_menu($loggedIn, $icon, $username) {
     <link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
     <script type="text/javascript">
         var tot_url = "<?php echo site_url('test/trickortreat'); ?>";
+        var prize_url = "<?php echo site_url('test/myprizes'); ?>";
         (function($) {
             "use strict";
 
@@ -272,6 +273,31 @@ function show_top_menu($loggedIn, $icon, $username) {
                 border = 25 - border;
                 $(this).find('ul').slideToggle();
 
+            });
+
+            $('#show_prizes').click(function() {
+                var el = $(this);
+                $.ajax({
+                    url: prize_url,
+                    method: "GET",
+                    dataType: "json",
+                    success: function(data) {
+                        $(el).fadeOut(500);
+                        for(var i in data.events) {
+                            var theDate = new Date(data.events[i].datetime);
+                            theDate = theDate.toLocaleDateString() + ' ' + theDate.toLocaleTimeString();
+                            var prizeCell = $('<td></td>');
+                            $(prizeCell).text(data.events[i].prize);
+                            var dateCell = $('<td></td>');
+                            $(dateCell).text(theDate);
+                            $('<tr>').append(dateCell).append(prizeCell).appendTo($('#prize_table > tbody'));
+                        }
+                        $('#prize_table_wrapper').slideDown(1000);
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        console.log(xhr.status);
+                    }
+                });
             });
 
             $(textRotator).textRotate({
@@ -717,8 +743,53 @@ function show_top_menu($loggedIn, $icon, $username) {
         width: 500px;
         text-align:center;
     }
-    </style>
+    span#show_prizes {
+        cursor: pointer;
+        display: block;
+        text-align: center;
+        margin: 0 auto;
+        width: 150px;
+        background-color: #62767C;
+        border-radius: 20px;
+        padding: 5px;
+        color: #fff;
+    }
+    span#show_prizes:hover {
+        background-color: #E87952;
+    }
+    div#prize_table_wrapper {
+        display: none;
+    }
+    table#prize_table {
+        font-size:10pt;
+        margin: 0 auto;
+    }
 
+    table#prize_table td {
+        color: #fff;
+        border-spacing: 0;
+        padding: 5px;
+    }
+
+    table#prize_table td + td {
+        border-left: 1px solid rgb(98, 118, 124);
+    }
+
+    table#prize_table tbody td {
+        padding-bottom: 5px;
+    }
+
+    table#prize_table thead td {
+        font-weight: bold;
+    }
+
+    table#prize_table tbody tr:nth-child(2n + 1) {
+        background-color: rgba(98, 118, 124, 0.8);
+    }
+    table#prize_table tbody tr:nth-child(2n), table#prize_table thead tr {
+        background-color: rgba(98, 118, 124, 0.6);
+    }
+    </style>
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -896,7 +967,19 @@ function show_top_menu($loggedIn, $icon, $username) {
                     <img class="header" src="/apps/assets/raffle/img/stats.png" />
                     <h1>Your Prizes</h1>
                     <hr />
-                    Here you can see your ToT history!
+                    <span id="show_prizes">Show My History</span>
+                    <div id="prize_table_wrapper">
+                        <table id="prize_table" cellpadding="0" cellspacing="0">
+                            <thead>
+                            <tr>
+                                <td>Date/Time</td>
+                                <td>Prize</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </li>
                 <!-- Prizes -->
             </ul>
