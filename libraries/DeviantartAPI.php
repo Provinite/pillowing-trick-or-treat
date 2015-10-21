@@ -281,6 +281,11 @@ class DeviantartAPI {
             throw new DeviantartConnectionException("Unknown connection error.");
         }
 
+        if ($responseCode == 429) {
+            throw new DeviantartRateLimitException("Rate Limit Exceeded");
+        }
+
+
         curl_close($ch);
 
         return array('response_code' => $responseCode, 'result' => json_decode($result));
@@ -341,6 +346,9 @@ class DeviantartAPI {
     //check if a user is watching another
     public function userIsWatching($username) {
         $result = $this->makeCall("user/friends/watching/$username", "GET", array());
+        if ($this->isError($result)) {
+            throw new DeviantartConnectionException();
+        }
         return $result['result']->watching;
     }
 

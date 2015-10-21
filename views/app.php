@@ -26,14 +26,15 @@ function show_top_menu($loggedIn, $icon, $username) {
     <meta name="mobile-web-app-capable" content="yes">
     <title>CloverCoin - Raffle</title>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.6/jquery.slimscroll.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.7.4/jquery.fullPage.js"></script>
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.7.4/jquery.fullPage.css" />
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
     <script type="text/javascript">
-        var tot_url = "<?php echo site_url('test/trickortreat'); ?>";
-        var prize_url = "<?php echo site_url('test/myprizes'); ?>";
+        var tot_url = "<?php echo site_url('welcome/trickortreat'); ?>";
+        var prize_url = "<?php echo site_url('welcome/myprizes'); ?>";
         (function($) {
             "use strict";
 
@@ -42,7 +43,9 @@ function show_top_menu($loggedIn, $icon, $username) {
                 el.data('tr-idx', n);
                 el.children().first().stop().fadeOut(props.outTime, function() {
                    setHtml($(this).parent());
-                   $(this).fadeIn(props.inTime);
+                   $(this).fadeIn(props.inTime, function() {
+                       $(window).trigger('resize');
+                   });
                 });
             };
 
@@ -153,7 +156,8 @@ function show_top_menu($loggedIn, $icon, $username) {
                 afterLoad: function() {
                     $('body').trigger('resize');
                 },
-                autoScrolling: autoscroll
+                autoScrolling: autoscroll,
+                scrollOverflow: true
             });
             var textRotator = $('.txtrotate');
 
@@ -282,17 +286,20 @@ function show_top_menu($loggedIn, $icon, $username) {
                     method: "GET",
                     dataType: "json",
                     success: function(data) {
-                        $(el).fadeOut(500);
+                        $(el).slideUp(500);
                         for(var i in data.events) {
                             var theDate = new Date(data.events[i].datetime);
                             theDate = theDate.toLocaleDateString() + ' ' + theDate.toLocaleTimeString();
                             var prizeCell = $('<td></td>');
+                            data.events[i].prize += (data.events[i].prize) ? "" : "None";
                             $(prizeCell).text(data.events[i].prize);
                             var dateCell = $('<td></td>');
                             $(dateCell).text(theDate);
                             $('<tr>').append(dateCell).append(prizeCell).appendTo($('#prize_table > tbody'));
                         }
-                        $('#prize_table_wrapper').slideDown(1000);
+                        $('#prize_table_wrapper').slideDown(1000, function() {
+                            $(window).trigger('resize');
+                        });
                     },
                     error: function(xhr, textStatus, errorThrown) {
                         console.log(xhr.status);
@@ -304,6 +311,8 @@ function show_top_menu($loggedIn, $icon, $username) {
                 outTime: 500,
                 inTime: 500
             });
+
+            <?php if ($hasError === false): ?>
 
             var hash = window.location.hash;
             if (hash.substr(0, 5) == "#main" && hash != "#main") {
@@ -320,6 +329,13 @@ function show_top_menu($loggedIn, $icon, $username) {
                     }
                 }, 2000);
             }
+
+            <?php elseif ($hasError === true): ?>
+                $('.txtBtn').removeClass('txtBtnActive');
+                $(textRotator).textRotate(5);
+                window.location.hash = '#main';
+            <?php endif; ?>
+
         });
     </script>
     <style type="text/css">
@@ -984,6 +1000,13 @@ function show_top_menu($loggedIn, $icon, $username) {
                     </div>
                 </li>
                 <!-- End Prizes -->
+                <!-- Error Page -->
+                <li>
+                    <img class="header" src="/apps/assets/raffle/img/error.png" />
+                    <h1>Uh Oh. . .</h1>
+                    <hr />
+                    <?php echo $errorMessage; ?>
+                </li>
             </ul>
             <div class="buttons">
                 <div><i class="fa fa-info txtBtn txtBtnActive" data-idx="0"></i><span class="label">Info</span></div>
