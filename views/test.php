@@ -312,6 +312,8 @@ function show_top_menu($loggedIn, $icon, $username) {
                 inTime: 500
             });
 
+            <?php if ($hasError === false): ?>
+
             var hash = window.location.hash;
             if (hash.substr(0, 5) == "#main" && hash != "#main") {
                 var idx = hash.substr(5);
@@ -327,6 +329,13 @@ function show_top_menu($loggedIn, $icon, $username) {
                     }
                 }, 2000);
             }
+
+            <?php elseif ($hasError === true): ?>
+                $('.txtBtn').removeClass('txtBtnActive');
+                $(textRotator).textRotate(5);
+                window.location.hash = '#main';
+            <?php endif; ?>
+
         });
     </script>
     <style type="text/css">
@@ -991,6 +1000,13 @@ function show_top_menu($loggedIn, $icon, $username) {
                     </div>
                 </li>
                 <!-- End Prizes -->
+                <!-- Error Page -->
+                <li>
+                    <img class="header" src="/apps/assets/raffle/img/error.png" />
+                    <h1>Uh Oh. . .</h1>
+                    <hr />
+                    <?php echo $errorMessage; ?>
+                </li>
             </ul>
             <div class="buttons">
                 <div><i class="fa fa-info txtBtn txtBtnActive" data-idx="0"></i><span class="label">Info</span></div>

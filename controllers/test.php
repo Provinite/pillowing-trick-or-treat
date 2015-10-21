@@ -160,6 +160,14 @@ class Test extends CI_Controller {
 
     public function index() {
         $viewData = array();
+        if ($this->session->userdata('error_message') !== false) {
+            $viewData['hasError'] = true;
+            $viewData['errorMessage'] = $this->session->userdata('error_message');
+            $this->session->unset_userdata('error_message');
+        } else {
+            $viewData['hasError'] = false;
+            $viewData['errorMessage'] = "";
+        }
         if ($this->session->userdata('uuid')) {
             $viewData['loggedIn'] = true;
             $viewData['username'] = $this->session->userdata('username');

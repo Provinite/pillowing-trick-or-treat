@@ -15,7 +15,9 @@ class Login extends CI_Controller {
 
     public function apireturn() {
         if ($this->input->get('error') !== false && $this->input->get('code') === false) {
-            //user declined
+            $this->session->set_userdata('error_message', "In order to use the site, you'll need to log in with DeviantArt and accept the access request.");
+            redirect($this->session->userdata('return_url'));
+            die();
         } elseif ($this->session->userdata('state') == $this->input->get('state') &&
             $this->input->get('state') != '' &&
             $this->input->get('state') !== false &&
@@ -27,12 +29,21 @@ class Login extends CI_Controller {
                 $this->deviantartapi->requestToken();
                 usleep(500000);
                 $result = $this->deviantartapi->whoami();
+                if ($result['responseCode'] >= 400) {
+                    throw new Exception();
+                }
                 usleep(500000);
                 $watching = $this->deviantartapi->userIsWatching('pillowing-pile');
+            } catch (DeviantartRateLimitException $e) {
+                $this->session->set_userdata('error_message', "Sorry, it looks like DeviantArt has gotten overloaded with our requests. Please try again in about ten minutes.");
+                redirect($this->session->userdata('return_url'));
+                die();
             } catch (Exception $e) {
-                //there was a problem connecting to DA. Let the user know nicely
-                die("Is big problem.");
+                $this->session->set_userdata('error_message', "Sorry, it looks like there was a problem logging you in. Please try logging in again in a few minutes.");
+                redirect($this->session->userdata('return_url'));
+                die();
             }
+
             $username = $result['result']->username;
             $uuid = $result['result']->userid;
             $usericon = $result['result']->usericon;
@@ -53,7 +64,14 @@ class Login extends CI_Controller {
             $user->setRefreshToken($this->deviantartapi->getRefreshToken());
 
             $user->setTokenIssued($this->deviantartapi->getTokenIssued()->format('Y-m-d H:i:s'));
-            $this->userdao->save($user);
+
+            try {
+                $this->userdao->save($user);
+            } catch (Exception $e) {
+                $this->session->set_userdata('error_message', "Sorry, it looks like there was a problem connecting up to DeviantArt. Please try logging in again in a few minutes.");
+                redirect($this->session->userdata('return_url'));
+                die();
+            }
 
             $this->session->set_userdata('username', $username);
             $this->session->set_userdata('uuid', $uuid);
@@ -61,6 +79,10 @@ class Login extends CI_Controller {
             $this->session->set_userdata('is_watching', $watching);
             $this->session->set_userdata('ip_address', $user->getIpAddress());
             redirect($this->session->userdata('return_url'));
+            die();
+        } elseif ($this->session->userdata('state') !== false && $this->session->userdata('state') != $this->input->get('state')) {
+            $this->session->set_userdata('error_message', "Sorry, it looks like there was a problem connecting up to DeviantArt. Please try logging in again in a few minutes.");
+            redirect('test');
             die();
         }
     }
