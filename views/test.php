@@ -842,11 +842,11 @@ function show_top_menu($loggedIn, $icon, $username) {
                 <li>
                     <img class="header" src="/apps/assets/raffle/img/headers/faq.png" />
                     <h1>Need Some Help?</h1>
-                    If you have any problems or questions for us, you can check out the <a href="">Frequently Asked Questions event journal</a>!
+                    If you have any problems or questions for us, you can check out the <a href="http://fav.me/d9dnf7b">Frequently Asked Questions event journal</a>!
                     <br /><br />
                     If you are experiencing errors with the website please comment on the journal and ping <a href="http://clovercoin.deviantart.com">CloverCoin</a> so she and Prov can check into the problem for you!
                     <br /><br />
-                    We hope to make this a smooth and easy to understand experience for all our users. So please don’t be afraid to ask questions! We’ll do our best to help when we can.<br />
+                    We hope to make this a smooth and easy to understand experience for all our users. So please don't be afraid to ask questions! We'll do our best to help when we can.<br />
 
                 </li>
                 <!-- End Help -->
