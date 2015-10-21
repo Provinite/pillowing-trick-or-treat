@@ -26,6 +26,7 @@ function show_top_menu($loggedIn, $icon, $username) {
     <meta name="mobile-web-app-capable" content="yes">
     <title>CloverCoin - Raffle</title>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.6/jquery.slimscroll.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.7.4/jquery.fullPage.js"></script>
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.7.4/jquery.fullPage.css" />
@@ -42,7 +43,9 @@ function show_top_menu($loggedIn, $icon, $username) {
                 el.data('tr-idx', n);
                 el.children().first().stop().fadeOut(props.outTime, function() {
                    setHtml($(this).parent());
-                   $(this).fadeIn(props.inTime);
+                   $(this).fadeIn(props.inTime, function() {
+                       $(window).trigger('resize');
+                   });
                 });
             };
 
@@ -153,7 +156,8 @@ function show_top_menu($loggedIn, $icon, $username) {
                 afterLoad: function() {
                     $('body').trigger('resize');
                 },
-                autoScrolling: autoscroll
+                autoScrolling: autoscroll,
+                scrollOverflow: true
             });
             var textRotator = $('.txtrotate');
 
@@ -282,17 +286,20 @@ function show_top_menu($loggedIn, $icon, $username) {
                     method: "GET",
                     dataType: "json",
                     success: function(data) {
-                        $(el).fadeOut(500);
+                        $(el).slideUp(500);
                         for(var i in data.events) {
                             var theDate = new Date(data.events[i].datetime);
                             theDate = theDate.toLocaleDateString() + ' ' + theDate.toLocaleTimeString();
                             var prizeCell = $('<td></td>');
+                            data.events[i].prize += (data.events[i].prize) ? "" : "None";
                             $(prizeCell).text(data.events[i].prize);
                             var dateCell = $('<td></td>');
                             $(dateCell).text(theDate);
                             $('<tr>').append(dateCell).append(prizeCell).appendTo($('#prize_table > tbody'));
                         }
-                        $('#prize_table_wrapper').slideDown(1000);
+                        $('#prize_table_wrapper').slideDown(1000, function() {
+                            $(window).trigger('resize');
+                        });
                     },
                     error: function(xhr, textStatus, errorThrown) {
                         console.log(xhr.status);
