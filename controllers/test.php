@@ -173,6 +173,44 @@ class Test extends CI_Controller {
         $this->load->view('test', $viewData);
     }
 
+    public function myprizes() {
+        if ($this->session->userdata('uuid') === false) {
+            $this->output->set_status_header('401');
+            die();
+        }
+
+        $ret = new stdClass();
+        $ret->result = true;
+        $ret->count = 0;
+        $ret->events = array();
+
+        $events = $this->trickortreateventdao->getWithUser_IdEquals($this->session->userdata('uuid'));
+        foreach ($events as $event) {
+            $evt = new stdClass();
+            if ($event->getWinLoss() == "win") {
+                $evt->win = true;
+                $evt->datetime = $event->getDateTime();
+                $winevent = $this->wineventdao->getWithUser_IdEqualsAndDate_TimeEquals($this->session->userdata('uuid'), $evt->datetime);
+                $winevent = $winevent[0];
+
+                $theprize = $this->prizedao->get($winevent->getPrizeId());
+
+                $evt->prize = $theprize->getName();
+            } else {
+                $evt->win = false;
+                $evt->datetime = $event->getDateTime();
+                $evt->prize = "";
+            }
+            $ret->events[] = $evt;
+            $ret->count++;
+        }
+
+        header("Content-type: application/json");
+
+        echo json_encode($ret);
+        die();
+    }
+
 }
 
 /* end of file test.php */

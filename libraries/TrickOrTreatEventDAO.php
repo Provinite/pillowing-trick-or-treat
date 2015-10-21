@@ -30,7 +30,7 @@ class TrickOrTreatEventDAO extends aDAO {
         $ret->setUserId($trickOrTreatEvent['user_id']);
         $ret->setDatetime($trickOrTreatEvent['date_time']);
         $ret->setIpAddress($trickOrTreatEvent['ip_address']);
-
+        $ret->setWinLoss($trickOrTreatEvent['win_loss']);
         return $ret;
     }
 
