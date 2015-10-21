@@ -1,3 +1,9 @@
+### Release 0.5.0
+- Stores token issue time in DB. Fixes #22
+- Adds help text. Fixes #29
+- Adds ToT history page. Fixes #11
+
+
 ### Release 0.4.0
 - Adds deco for login page [GH-28]
 - Adds user dropdown menu [GH-27]
