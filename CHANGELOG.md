@@ -1,3 +1,11 @@
+### Release 1.0.0RC1
+- Makes page scroll properly on long content. Fixes #32
+- Changes fadeOut to slideUp on #show_prizes. Fixes #31
+- Fixes help text. Fixes #30
+- Adds error handling view. Fixes #26
+- Adds complete login error handling. Fixes #21
+- Moves controllers to final url. Fixes #17
+
 ### Release 0.5.0
 - Stores token issue time in DB. Fixes #22
 - Adds help text. Fixes #29
