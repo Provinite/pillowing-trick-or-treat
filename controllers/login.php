@@ -7,7 +7,7 @@ class Login extends CI_Controller {
         if ($this->input->get('return_url'))
             $this->session->set_userdata('return_url', $this->input->get('return_url'));
         else
-            $this->session->set_userdata('return_url', 'test');
+            $this->session->set_userdata('return_url', '');
         $link = $this->deviantartapi->authorizationUrl($state);
         redirect($link);
         die();
@@ -82,7 +82,7 @@ class Login extends CI_Controller {
             die();
         } elseif ($this->session->userdata('state') !== false && $this->session->userdata('state') != $this->input->get('state')) {
             $this->session->set_userdata('error_message', "Sorry, it looks like there was a problem connecting up to DeviantArt. Please try logging in again in a few minutes.");
-            redirect('test');
+            redirect('');
             die();
         }
     }
@@ -92,7 +92,7 @@ class Login extends CI_Controller {
         if ($this->input->get('return_url') !== false)
             redirect($this->input->get('return_url'));
         else
-            redirect('test');
+            redirect('');
         die();
     }
 }

@@ -33,8 +33,8 @@ function show_top_menu($loggedIn, $icon, $username) {
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
     <script type="text/javascript">
-        var tot_url = "<?php echo site_url('test/trickortreat'); ?>";
-        var prize_url = "<?php echo site_url('test/myprizes'); ?>";
+        var tot_url = "<?php echo site_url('welcome/trickortreat'); ?>";
+        var prize_url = "<?php echo site_url('welcome/myprizes'); ?>";
         (function($) {
             "use strict";
 
